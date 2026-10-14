@@ -1,0 +1,5 @@
+dist/
+publisher.key
+publisher.pub
+*.minisig
+*.sha256

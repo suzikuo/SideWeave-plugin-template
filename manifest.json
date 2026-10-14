@@ -1,0 +1,21 @@
+{
+  "manifestVersion": 1,
+  "apiVersion": 1,
+  "id": "example-weather",
+  "name": "Example Weather",
+  "icon": "ui/icon.svg",
+  "version": "1.0.0",
+  "type": "web",
+  "description": "A starter SideWeave web plugin.",
+  "author": "Example Publisher",
+  "publisher": "example-publisher",
+  "key_id": "main-2026",
+  "runtime": "web_sandbox",
+  "requires_trust": false,
+  "capabilities": ["storage"],
+  "ui": {
+    "entry": "ui/index.html",
+    "kind": "html",
+    "assetRoot": "ui"
+  }
+}

@@ -1,0 +1,39 @@
+name: Publish signed plugin package
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Minisign
+        run: sudo apt-get update && sudo apt-get install --yes minisign
+      - name: Build, sign and checksum package
+        env:
+          MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
+          MINISIGN_PUBLIC_KEY: ${{ vars.MINISIGN_PUBLIC_KEY }}
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          ID="$(python3 -c 'import json; print(json.load(open("manifest.json"))["id"])')"
+          ASSET="$ID-$VERSION.zip"
+          mkdir -p dist
+          python3 tools/package.py --version "$VERSION" --output "dist/$ASSET"
+          printf '%s' "$MINISIGN_SECRET_KEY" > dist/publisher.key
+          minisign -R -s dist/publisher.key -p dist/publisher.pub
+          PUBLIC_KEY="$(tail -n 1 dist/publisher.pub | tr -d '\r\n')"
+          test "$PUBLIC_KEY" = "$MINISIGN_PUBLIC_KEY"
+          minisign -S -s dist/publisher.key -m "dist/$ASSET" -x "dist/$ASSET.minisig"
+          sha256sum "dist/$ASSET" > "dist/$ASSET.sha256"
+          rm -f dist/publisher.key dist/publisher.pub
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.zip dist/*.minisig dist/*.sha256 --verify-tag --title "$GITHUB_REF_NAME" --notes "Signed SideWeave plugin package"
