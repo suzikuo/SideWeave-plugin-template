@@ -1,29 +1,38 @@
-# SideWeave plugin template
+# SideWeave plugin templates
 
-This directory is the starter for the standalone repository `suzikuo/sideweave-plugin-template`. It builds a small web-sandbox plugin ZIP. Copy the directory contents into a new repository, replace the example metadata and UI, then push a version tag to create a signed GitHub Release.
+This repository contains three independent plugin starters:
 
-## Package manifest
+- The **Web plugin** starter is at the repository root. It runs in SideWeave's web sandbox.
+- The **Native DLL plugin** starter is in [`native/`](native/README.md). It uses a standalone Cargo project and packages its own backend and UI.
+- The **Skin plugin** starter is in [`skin/`](skin/README.md). It provides separate sidebar, detail, control and preview pages, plus package and signing scripts.
 
-Edit `manifest.json` before publishing:
+Choose the Web or Native runtime, or build a Skin package, and follow its README. All three use the same publisher directory, signed release assets, and Marketplace catalog contract. Skins appear in the Marketplace `skins` collection with `type: "skin"`.
 
-- Use a stable lowercase `id` containing letters, digits, `_` or `-`.
-- Keep `type` as `web` for this sandbox example. Native packages use `type: "native"`, a supported native runtime, a backend path and `requires_trust: true`.
-- Declare host API permissions under `capabilities`; these are the existing SideWeave permission IDs. The host still reads old `permissions` manifests.
-- Set your marketplace `publisher` ID and `key_id`. The signed archive manifest must match the marketplace entry.
+## Web package manifest
+
+Edit manifest.json before publishing:
+
+- Use a stable lowercase id containing letters, digits, underscore or hyphen.
+- Keep type as web for this sandbox example. Native packages require a supported runtime, backend path and requires_trust: true.
+- Declare host API permissions under capabilities. The host still reads old permissions manifests.
+- Set publisher and key_id to match publishers.json in the marketplace.
 - Use relative paths for the UI and assets.
 
-## Publish a signed version
+## Publish a signed Web version locally
 
-1. Generate a dedicated CI keypair with `minisign -G -W -s publisher.key -p publisher.pub`. `-W` creates an unencrypted key so GitHub Actions can sign non-interactively; keep the private key only in the repository secret and an offline backup.
-2. Open a pull request to `suzikuo/sideweave-marketplace` adding your publisher and public key to `publishers.json`.
-3. Configure repository secret `MINISIGN_SECRET_KEY` and repository variable `MINISIGN_PUBLIC_KEY` (the public key's base64 payload) in this plugin repository. The workflow checks that the public key matches the secret before signing. Do not configure a password secret; Minisign's `-P` option is for public-key verification, not signing passwords.
-4. Set `manifest.json` to the version being released and push the matching `v<version>` tag.
-5. Add the generated ZIP, `.minisig` and `.sha256` URLs to a marketplace pull request. Keep `latest` pointed at the selected version.
+1. Generate a dedicated keypair with minisign -G -W -s publisher.key -p publisher.pub. Keep the private key outside the repository and make an offline backup.
+2. Add your publisher ID and public key to publishers.json in suzikuo/SideWeave-Marketplace, then push the change. Record the base64 payload from the last line of publisher.pub.
+3. Set manifest.json to the version being released. From PowerShell, run:
 
-The Release workflow builds a ZIP, signs it, writes a checksum and creates a GitHub Release. It does not execute plugin code. The marketplace validator also downloads packages without executing them.
+       .\tools\release-local.ps1 -Version 1.2.0 -SigningKeyPath 'C:\keys\publisher.key' -ExpectedPublicKeyPayload '<payload>' -MinisignExe 'C:\tools\minisign.exe'
+
+4. Create a GitHub Release with tag v<version> and upload the ZIP, .minisig and .sha256 files from dist.
+5. Add the exact asset URLs to marketplace.json in a follow-up commit. Keep latest pointed at the selected version and run the marketplace validator locally before pushing.
+
+The local script packages and signs the ZIP; it does not publish or execute plugin code.
 
 ## Native plugin SDK
 
-The example is a web plugin and needs no Rust SDK. For native Rust packages, use the public SDK crates in `sidebar-tauri` (`crates/plugin-api`, `crates/plugin-sdk`, `crates/plugin-ipc`) as Git dependencies pinned to a reviewed tag. These crates retain their `agile-tiles-*` package names for compatibility. The SDK source can move to a smaller standalone repository later without changing plugin IDs or manifests.
+The Native starter is a Windows `dynamic_library` plugin. Its Cargo project depends directly on `sideweave-plugin-api` for protocol types and `sideweave-plugin-sdk` for host services, pinned to one reviewed SideWeave Git revision. It includes scripts to build `plugin.dll`, package it with the manifest and UI, and prepare signed release assets.
 
-Native code can access the host system directly. `capabilities` describes requested host API access; it does not sandbox the native binary.
+Native code can access the host system directly. `capabilities` describes requested host API access; it does not sandbox the native binary. For an out-of-process plugin, use the `external_process` runtime and add `sideweave-plugin-ipc`.

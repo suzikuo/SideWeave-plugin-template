@@ -1,0 +1,13 @@
+@import url('../skin.css');
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; margin: 0; }
+body {
+  color: var(--example-skin-text);
+  font: 14px/1.5 "Segoe UI", sans-serif;
+  background: radial-gradient(ellipse at top left, #273c5d, var(--example-skin-surface) 68%);
+}
+.surface { min-height: 100vh; padding: 24px; }
+.eyebrow { color: var(--example-skin-accent); font-size: 10px; font-weight: 700; letter-spacing: .16em; }
+h1 { margin: 10px 0 6px; font-size: 24px; }
+p { margin: 0; color: #b8c5d9; }

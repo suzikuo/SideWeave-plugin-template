@@ -16,7 +16,7 @@ def main() -> None:
         raise SystemExit(f"manifest version {manifest.get('version')} does not match tag {args.version}")
     if manifest.get("id") in {"", "example-weather"} or manifest.get("publisher") == "example-publisher":
         raise SystemExit("Replace the template id and publisher before publishing")
-    excluded = {".git", ".github", "dist", "target", "tools", "README.md", ".gitignore"}
+    excluded = {".git", ".github", "dist", "target", "tools", "native", "skin", "README.md", ".gitignore"}
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     with ZipFile(output, "w", ZIP_DEFLATED) as archive:

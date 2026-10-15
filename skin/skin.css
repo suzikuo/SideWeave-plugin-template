@@ -1,0 +1,10 @@
+:root {
+  --example-skin-accent: #79a8ff;
+  --example-skin-surface: #172235;
+  --example-skin-text: #eef4ff;
+}
+
+:root[data-skin='user:example-skin'] {
+  --detail-image: none;
+  --rail-image: none;
+}
