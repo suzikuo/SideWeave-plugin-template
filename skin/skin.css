@@ -1,7 +1,19 @@
 :root {
-  --example-skin-accent: #79a8ff;
-  --example-skin-surface: #172235;
-  --example-skin-text: #eef4ff;
+  --example-skin-accent: #4d80ff;
+  --example-skin-background: #09090b;
+  --example-skin-surface: #101113;
+  --example-skin-text: #fafafa;
+  --example-skin-muted: #a1a1aa;
+  --example-skin-border: #292a2e;
+}
+
+:root[data-theme='light'] {
+  --example-skin-accent: #3370ff;
+  --example-skin-background: #fafafa;
+  --example-skin-surface: #fff;
+  --example-skin-text: #09090b;
+  --example-skin-muted: #71717a;
+  --example-skin-border: #e4e4e7;
 }
 
 :root[data-skin='user:example-skin'] {
